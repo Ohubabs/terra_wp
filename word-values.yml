@@ -1,0 +1,307 @@
+## @param wordpressUsername WordPress username
+##
+wordpressUsername: user
+## @param wordpressPassword WordPress user password
+## Defaults to a random 10-character alphanumeric string if not set
+##
+wordpressPassword: "Gunners23"
+## @param existingSecret Name of existing secret containing WordPress credentials
+## NOTE: Must contain key `wordpress-password`
+## NOTE: When it's set, the `wordpressPassword` parameter is ignored
+##
+existingSecret: ""
+## @param wordpressEmail WordPress user email
+##
+wordpressEmail: user@example.com
+## @param wordpressFirstName WordPress user first name
+##
+wordpressFirstName: FirstName
+## @param wordpressLastName WordPress user last name
+##
+wordpressLastName: LastName
+## @param wordpressBlogName Blog name
+##
+wordpressBlogName: User's Blog!
+## @param wordpressTablePrefix Prefix to use for WordPress database tables
+##
+
+## @section WordPress deployment parameters
+##
+
+## @param replicaCount Number of WordPress replicas to deploy
+## NOTE: ReadWriteMany PVC(s) are required if replicaCount > 1
+##
+replicaCount: 1
+## @param updateStrategy.type WordPress deployment strategy type
+## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+## NOTE: Set it to `Recreate` if you use a PV that cannot be mounted on multiple pods
+## e.g:
+## updateStrategy:
+##  type: RollingUpdate
+##  rollingUpdate:
+##    maxSurge: 25%
+##    maxUnavailable: 25%
+##
+updateStrategy:
+  type: RollingUpdate
+## @param schedulerName Alternate scheduler
+## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+##
+
+## WordPress containers' resource requests and limits
+## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+## @param resources.limits The resources limits for the WordPress containers
+## @param resources.requests.memory The requested memory for the WordPress containers
+## @param resources.requests.cpu The requested cpu for the WordPress containers
+##
+resources:
+  limits: {}
+  requests:
+    memory: 512Mi
+    cpu: 300m
+## Container ports
+## @param containerPorts.http WordPress HTTP container port
+## @param containerPorts.https WordPress HTTPS container port
+##
+containerPorts:
+  http: 8080
+  https: 8443
+
+## WordPress service parameters
+##
+service:
+  ## @param service.type WordPress service type
+  ##
+  type: LoadBalancer
+  ## @param service.ports.http WordPress service HTTP port
+  ## @param service.ports.https WordPress service HTTPS port
+  ##
+  ports:
+    http: 80
+    https: 443
+  ## @param service.httpsTargetPort Target port for HTTPS
+  ##
+  httpsTargetPort: https
+
+ingress:
+  ## @param ingress.enabled Enable ingress record generation for WordPress
+  ##
+  enabled: false
+  ## @param ingress.pathType Ingress path type
+  ##
+  pathType: ImplementationSpecific
+  ## @param ingress.apiVersion Force Ingress API version (automatically detected if not set)
+  ##
+  apiVersion: ""
+  ## @param ingress.ingressClassName IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
+  ## This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
+  ## ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
+  ##
+  ingressClassName: ""
+  ## @param ingress.hostname Default host for the ingress record. The hostname is templated and thus can contain other variable references.
+  ##
+  hostname: wordpress.local
+  ## @param ingress.path Default path for the ingress record
+  ## NOTE: You may need to set this to '/*' in order to use this with ALB ingress controllers
+  ##
+  path: /
+  ## @param ingress.annotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
+  ## For a full list of possible ingress annotations, please see
+  ## ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+  ## Use this parameter to set the required annotations for cert-manager, see
+  ## ref: https://cert-manager.io/docs/usage/ingress/#supported-annotations
+  ##
+  ## e.g:
+  ## annotations:
+  ##   kubernetes.io/ingress.class: nginx
+  ##   cert-manager.io/cluster-issuer: cluster-issuer-name
+  ##
+  annotations: {}
+  ## @param ingress.tls Enable TLS configuration for the host defined at `ingress.hostname` parameter
+  ## TLS certificates will be retrieved from a TLS secret with name: `{{- printf "%s-tls" .Values.ingress.hostname }}`
+  ## You can:
+  ##   - Use the `ingress.secrets` parameter to create this TLS secret
+  ##   - Rely on cert-manager to create it by setting the corresponding annotations
+  ##   - Rely on Helm to create self-signed certificates by setting `ingress.selfSigned=true`
+  ##
+  tls: false
+  ## @param ingress.tlsWwwPrefix Adds www subdomain to default cert
+  ## Creates tls host with ingress.hostname: {{ print "www.%s" .Values.ingress.hostname }}
+  ## Is enabled if "nginx.ingress.kubernetes.io/from-to-www-redirect" is "true"
+  tlsWwwPrefix: false
+  ## @param ingress.selfSigned Create a TLS secret for this ingress record using self-signed certificates generated by Helm
+  ##
+  selfSigned: false
+  ## @param ingress.extraHosts An array with additional hostname(s) to be covered with the ingress record. The host names are templated and thus can contain other variable references.
+  ## e.g:
+  ## extraHosts:
+  ##   - name: wordpress.local
+  ##     path: /
+  ##
+  extraHosts: []
+  ## @param ingress.extraPaths An array with additional arbitrary paths that may need to be added to the ingress under the main host
+  ## e.g:
+  ## extraPaths:
+  ## - path: /*
+  ##   backend:
+  ##     serviceName: ssl-redirect
+  ##     servicePort: use-annotation
+  ##
+  extraPaths: []
+  ## @param ingress.extraTls TLS configuration for additional hostname(s) to be covered with this ingress record
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
+  ## e.g:
+  ## extraTls:
+  ## - hosts:
+  ##     - wordpress.local
+  ##   secretName: wordpress.local-tls
+  ##
+  extraTls: []
+  ## @param ingress.secrets Custom TLS certificates as secrets
+  ## NOTE: 'key' and 'certificate' are expected in PEM format
+  ## NOTE: 'name' should line up with a 'secretName' set further up
+  ## If it is not set and you're using cert-manager, this is unneeded, as it will create a secret for you with valid certificates
+  ## If it is not set and you're NOT using cert-manager either, self-signed certificates will be created valid for 365 days
+  ## It is also possible to create and manage the certificates outside of this helm chart
+  ## Please see README.md for more information
+  ## e.g:
+  ## secrets:
+  ##   - name: wordpress.local-tls
+  ##     key: |-
+  ##       -----BEGIN RSA PRIVATE KEY-----
+  ##       ...
+  ##       -----END RSA PRIVATE KEY-----
+  ##     certificate: |-
+  ##       -----BEGIN CERTIFICATE-----
+  ##       ...
+  ##       -----END CERTIFICATE-----
+  ##
+  secrets: []
+  ## @param ingress.extraRules Additional rules to be covered with this ingress record
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules
+  ## e.g:
+  ## extraRules:
+  ## - host: wordpress.local
+  ##     http:
+  ##       path: /
+  ##       backend:
+  ##         service:
+  ##           name: wordpress-svc
+  ##           port:
+  ##             name: http
+  ##
+  extraRules: []
+
+## @section Persistence Parameters
+##
+
+## Persistence Parameters
+## ref: https://kubernetes.io/docs/user-guide/persistent-volumes/
+##
+persistence:
+  ## @param persistence.enabled Enable persistence using Persistent Volume Claims
+  ##
+  enabled: true
+  ## @param persistence.storageClass Persistent Volume storage class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is set, choosing the default provisioner
+  ##
+  storageClass: "wordpress-sc"
+  ## @param persistence.accessModes [array] Persistent Volume access modes
+  ##
+  accessModes:
+    - ReadWriteOnce
+  ## @param persistence.accessMode Persistent Volume access mode (DEPRECATED: use `persistence.accessModes` instead)
+  ##
+  accessMode: ReadWriteOnce
+  ## @param persistence.size Persistent Volume size
+  ##
+  size: 10Gi
+  ## @param persistence.dataSource Custom PVC data source
+  ##
+  dataSource: {}
+  ## @param persistence.existingClaim The name of an existing PVC to use for persistence
+  ##
+  existingClaim: ""
+  ## @param persistence.selector Selector to match an existing Persistent Volume for WordPress data PVC
+  ## If set, the PVC can't have a PV dynamically provisioned for it
+  ## E.g.
+  ## selector:
+  ##   matchLabels:
+  ##     app: my-app
+  ##
+  selector: {}
+  ## @param persistence.annotations Persistent Volume Claim annotations
+  ##
+  annotations: {}
+
+## MariaDB chart configuration
+## ref: https://github.com/bitnami/charts/blob/main/bitnami/mariadb/values.yaml
+##
+mariadb:
+  ## @param mariadb.enabled Deploy a MariaDB server to satisfy the applications database requirements
+  ## To use an external database set this to false and configure the `externalDatabase.*` parameters
+  ##
+  enabled: false #enable to use default db
+  ## @param mariadb.architecture MariaDB architecture. Allowed values: `standalone` or `replication`
+  ##
+  architecture: standalone
+  ## MariaDB Authentication parameters
+  ## @param mariadb.auth.rootPassword MariaDB root password
+  ## @param mariadb.auth.database MariaDB custom database
+  ## @param mariadb.auth.username MariaDB custom user name
+  ## @param mariadb.auth.password MariaDB custom user password
+  ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mariadb#setting-the-root-password-on-first-run
+  ##      https://github.com/bitnami/containers/blob/main/bitnami/mariadb/README.md#creating-a-database-on-first-run
+  ##      https://github.com/bitnami/containers/blob/main/bitnami/mariadb/README.md#creating-a-database-user-on-first-run
+  ##
+  auth:
+    rootPassword: ""
+    database: bitnami_wordpress
+    username: bn_wordpress
+    password: ""
+  ## MariaDB Primary configuration
+  ##
+  primary:
+    ## MariaDB Primary Persistence parameters
+    ## ref: https://kubernetes.io/docs/user-guide/persistent-volumes/
+    ## @param mariadb.primary.persistence.enabled Enable persistence on MariaDB using PVC(s)
+    ## @param mariadb.primary.persistence.storageClass Persistent Volume storage class
+    ## @param mariadb.primary.persistence.accessModes [array] Persistent Volume access modes
+    ## @param mariadb.primary.persistence.size Persistent Volume size
+    ##
+    persistence:
+      enabled: true
+      storageClass: "maria-sc"
+      accessModes:
+        - ReadWriteOnce
+      size: 8Gi
+## External Database Configuration
+## All of these values are only used if `mariadb.enabled=false`
+##
+externalDatabase:
+  ## @param externalDatabase.host External Database server host
+  ##
+  host: 172.20.229.15 #edit with ip for mysql
+  ## @param externalDatabase.port External Database server port
+  ##
+  port: 3306
+  ## @param externalDatabase.user External Database username
+  ##
+  user: bn_wordpress
+  ## @param externalDatabase.password External Database user password
+  ##
+  password: Gunners23
+  ## @param externalDatabase.database External Database database name
+  ##
+  database: wordpress_database
+  ## @param externalDatabase.existingSecret The name of an existing secret with database credentials. Evaluated as a template
+  ## NOTE: Must contain key `mariadb-password`
+  ## NOTE: When it's set, the `externalDatabase.password` parameter is ignored
+  ##
+  existingSecret: ""
+## Memcached chart configuration
+## ref: https://github.com/bitnami/charts/blob/main/bitnami/memcached/values.yaml
+##
+
