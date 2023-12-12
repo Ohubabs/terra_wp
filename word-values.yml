@@ -280,27 +280,27 @@ mariadb:
 ## External Database Configuration
 ## All of these values are only used if `mariadb.enabled=false`
 ##
-externalDatabase:
+#externalDatabase:
   ## @param externalDatabase.host External Database server host
   ##
-  host: 172.20.229.15 #edit with ip for mysql
+  #host: 172.20.229.15 #edit with ip for mysql
   ## @param externalDatabase.port External Database server port
   ##
-  port: 3306
+  #port: 3306
   ## @param externalDatabase.user External Database username
   ##
-  user: bn_wordpress
+  #user: bn_wordpress
   ## @param externalDatabase.password External Database user password
   ##
-  password: Gunners23
+  #password: Gunners23
   ## @param externalDatabase.database External Database database name
   ##
-  database: wordpress_database
+  #database: wordpress_database
   ## @param externalDatabase.existingSecret The name of an existing secret with database credentials. Evaluated as a template
   ## NOTE: Must contain key `mariadb-password`
   ## NOTE: When it's set, the `externalDatabase.password` parameter is ignored
   ##
-  existingSecret: ""
+  #existingSecret: ""
 ## Memcached chart configuration
 ## ref: https://github.com/bitnami/charts/blob/main/bitnami/memcached/values.yaml
 ##
