@@ -25,7 +25,7 @@ pipeline{
         stage('Create Wordpress ClusterIssuer'){
             steps{
               sh "echo 'Create Cluster Issuer for Mattermost'"
-              sh "kubectl apply -f mattermost-issuer.yml"   
+              sh "kubectl apply -f wordpress-issuer.yml"   
             }
         }
         stage('Initialize Terraform Environment'){
