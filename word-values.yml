@@ -72,7 +72,7 @@ containerPorts:
 service:
   ## @param service.type WordPress service type
   ##
-  type: LoadBalancer
+  type: NodePort
   ## @param service.ports.http WordPress service HTTP port
   ## @param service.ports.https WordPress service HTTPS port
   ##
@@ -243,7 +243,7 @@ mariadb:
   ## @param mariadb.enabled Deploy a MariaDB server to satisfy the applications database requirements
   ## To use an external database set this to false and configure the `externalDatabase.*` parameters
   ##
-  enabled: false #enable to use default db
+  enabled: true #enable to use default db
   ## @param mariadb.architecture MariaDB architecture. Allowed values: `standalone` or `replication`
   ##
   architecture: standalone
