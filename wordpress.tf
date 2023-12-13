@@ -9,13 +9,13 @@ resource "helm_release" "wordpress" {
   ]
 }
 
-resource "helm_release" "mysql" {
-  name       = "mysql"
-  namespace = "default"
-  repository = "oci://registry-1.docker.io/bitnamicharts"
-  chart      = "mysql"
-
-  values = [
-    "${file("mysql-values.yml")}"
-  ]
-}
+#resource "helm_release" "mysql" {
+#  name       = "mysql"
+#  namespace = "default"
+#  repository = "oci://registry-1.docker.io/bitnamicharts"
+#  chart      = "mysql"
+#
+#  values = [
+#    "${file("mysql-values.yml")}"
+#  ]
+#}
