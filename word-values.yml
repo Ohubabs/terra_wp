@@ -48,10 +48,10 @@ updateStrategy:
 ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
 ##
 
-hostAliases:
-  - ip: "localhost:80"
-    hostname:
-      - "wordpress.devopsnetwork.net"
+#hostAliases:
+#  - ip: "localhost:80"
+#    hostname:
+#      - "wordpress.devopsnetwork.net"
 
 
 
