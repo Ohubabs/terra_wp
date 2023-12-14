@@ -12,7 +12,8 @@ resource "helm_release" "wordpress" {
 
 #resource "helm_release" "mysql" {
 #  name       = "mysql"
-#  namespace = "default"
+#  create_namespace = true
+#  namespace = "wp"
 #  repository = "oci://registry-1.docker.io/bitnamicharts"
 #  chart      = "mysql"
 #
