@@ -1,6 +1,7 @@
 resource "helm_release" "wordpress" {
   name       = "wordpress"
-  namespace = "default"
+  create_namespace = true
+  namespace  = "wp"
   repository = "oci://registry-1.docker.io/bitnamicharts"
   chart      = "wordpress"
 
