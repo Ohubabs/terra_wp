@@ -45,7 +45,7 @@
 resource "kubernetes_ingress_v1" "wordpress-ingress" {
   wait_for_load_balancer = true
   metadata {
-    name = "mattermost"
+    name = "wordpress"
     namespace = "wp"
     annotations = {
         "cert-manager.io/cluster-issuer" = "wordpress-issuer"
